@@ -669,6 +669,83 @@ void handleMaximize(WWindow *wwin, int directions)
 	}
 }
 
+/* moving between heads 
+ *
+ * direction = 0 means CCW (first try moving left, then up)
+ * direction = 1 means Clock-wise (first try moving right, then bottom)
+ *
+ * */
+
+void moveBetweenHeads(WWindow *wwin, int direction)
+{
+	int head = wGetHeadForWindow(wwin);
+	int destHead = -1;
+
+	unsigned int new_width, new_height;
+	int offsetX, newX = 0;
+	int offsetY, newY = 0;
+	WArea totalArea, oldHeadArea, destHeadArea;
+	WScreen *scr = wwin->screen_ptr;
+
+	/* Apply for window state, which is only horizontally or vertically
+	 * maximized. Quarters cannot be handled here, since there is not clear
+	 * on which direction user intend to move such window. */
+	if (direction == 0) {
+		destHead = wGetHeadRelativeToCurrentHead(wwin->screen_ptr,
+				head, DIRECTION_LEFT);
+		if (destHead == -1) {
+			destHead = wGetHeadRelativeToCurrentHead(wwin->screen_ptr,
+					head, DIRECTION_UP);
+		}
+	} else if (direction == 1) {
+		destHead = wGetHeadRelativeToCurrentHead(wwin->screen_ptr,
+				head, DIRECTION_RIGHT);
+		if (destHead == -1) {
+			destHead = wGetHeadRelativeToCurrentHead(wwin->screen_ptr,
+					head, DIRECTION_DOWN);
+		}
+	}
+
+	if (destHead != -1) {
+		totalArea.x1 = 0;
+		totalArea.y1 = 0;
+		totalArea.x2 = scr->scr_width;
+		totalArea.y2 = scr->scr_height;
+
+		oldHeadArea = wGetUsableAreaForHead(scr, head, &totalArea, True);
+		destHeadArea = wGetUsableAreaForHead(scr, destHead, &totalArea, True);
+
+		offsetX = wwin->frame_x - oldHeadArea.x1;
+		offsetY = wwin->frame_y - oldHeadArea.y1;
+
+		newX = destHeadArea.x1 + offsetX;
+		newY = destHeadArea.y1 + offsetY;
+
+		new_width = wwin->client.width;
+		new_height = wwin->client.height;
+
+		if (newX > destHeadArea.x2) {
+			newX = destHeadArea.x2 - wwin->client.width;
+		}
+		
+		if (newX < destHeadArea.x1)
+			newX = destHeadArea.x1;
+
+		if (newY > destHeadArea.y2) {
+			newY = destHeadArea.y2 - wwin->client.height;
+		}
+		
+		if (newY < destHeadArea.y1)
+			newY = destHeadArea.y1;
+
+		/* unset maximization state */
+		wwin->flags.maximized = 0;
+		wWindowConfigure(wwin, newX, newY, new_width, new_height);
+	}
+
+	return;
+}
+
 /* the window boundary coordinates */
 typedef struct {
 	int left;

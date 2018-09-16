@@ -1802,6 +1802,21 @@ static void handleKeyPress(XEvent * event)
 
 		break;
 
+	case WKBD_MOVE_CW_HEAD:
+		if (wwin) {
+			moveBetweenHeads(wwin, 0);
+			/*get current head*/
+			/*try to get next right head*/
+			/*if fails -> try to get next top head*/
+			/*if got some head -> move window to that head*/
+		}
+		break;
+	case WKBD_MOVE_CCW_HEAD:
+		if (wwin) {
+			moveBetweenHeads(wwin, 1);
+		}
+		break;
+
 	case WKBD_RELAUNCH:
 		if (ISMAPPED(wwin) && ISFOCUSED(wwin))
 			(void) RelaunchWindow(wwin);
