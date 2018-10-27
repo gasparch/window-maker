@@ -132,9 +132,9 @@ enum {
 	WKBD_WINDOW9,
 	WKBD_WINDOW10,
 
-	/* head shortcuts */
-	WKBD_MOVE_CW_HEAD,
-	WKBD_MOVE_CCW_HEAD,
+	/* shortcuts to move window between heads */
+	WKBD_MOVE_12_TO_6_HEAD,
+	WKBD_MOVE_6_TO_12_HEAD,
 
 	/* launch a new instance of the active window */
 	WKBD_RELAUNCH,
